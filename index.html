@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+  <title>প্রেয়সী</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Hind+Siliguri:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+
+  <style>
+    :root{
+      --wine:#6B1530;
+      --rose:#B8455F;
+      --champ:#C9A96E;
+      --cream:#EDE0CC;
+      --muted:rgba(210,192,162,.36);
+      --muted2:rgba(210,192,162,.6);
+      --glass:rgba(8,4,12,.5);
+      --gbdr:rgba(180,130,100,.14);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{width:100%;height:100%;overflow:hidden;}
+    body{font-family:'Hind Siliguri',sans-serif;background:#04030A;color:var(--cream);}
+
+    /* CINEMATIC BG */
+    #photo-bg{
+      position:fixed;inset:0;z-index:0;
+      background:url('img/photo.jpg') center 35%/cover no-repeat;
+      transform:scale(1.05);
+      filter:brightness(.42) saturate(.7) sepia(.12);
+    }
+    #vignette{
+      position:fixed;inset:0;z-index:1;pointer-events:none;
+      background:
+        radial-gradient(ellipse 90% 80% at 50% 105%,rgba(50,6,20,.9) 0%,transparent 60%),
+        radial-gradient(ellipse 100% 45% at 50% -5%,rgba(4,3,10,.95) 0%,transparent 55%),
+        linear-gradient(to bottom,rgba(4,3,10,.45) 0%,transparent 30%,transparent 70%,rgba(4,3,10,.65) 100%);
+    }
+    #grain{
+      position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.04;
+      background:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0/160px;
+    }
+    #cv{position:fixed;inset:0;z-index:3;pointer-events:none;}
+
+    /* OVERLAY */
+    .ov{
+      position:fixed;inset:0;z-index:300;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      background:rgba(4,3,10,.38);
+      transition:opacity 1.6s cubic-bezier(.4,0,.2,1);
+    }
+    .ov.out{opacity:0;pointer-events:none;}
+    .ov-eye{
+      font-size:clamp(.58rem,1.6vw,.7rem);letter-spacing:9px;text-transform:uppercase;
+      color:var(--muted);margin-bottom:24px;font-weight:300;
+    }
+    .ov-name{
+      font-family:'Cormorant Garamond',serif;
+      font-size:clamp(5rem,18vw,11rem);
+      font-style:italic;font-weight:300;line-height:.9;
+      color:var(--cream);letter-spacing:-.01em;
+      text-shadow:0 0 60px rgba(201,169,110,.3),0 0 120px rgba(201,169,110,.12);
+      animation:ng 5s ease-in-out infinite;
+    }
+    @keyframes ng{
+      0%,100%{text-shadow:0 0 40px rgba(201,169,110,.25);}
+      50%{text-shadow:0 0 65px rgba(201,169,110,.65),0 0 130px rgba(201,169,110,.18);}
+    }
+    .ov-rule{
+      display:flex;align-items:center;gap:14px;
+      margin:26px auto 34px;width:min(260px,55vw);
+    }
+    .ov-rule span{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(201,169,110,.4),transparent);}
+    .ov-rule em{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.72rem;color:rgba(201,169,110,.45);letter-spacing:2px;white-space:nowrap;}
+    .hbtn{
+      position:relative;width:76px;height:76px;border-radius:50%;
+      background:radial-gradient(circle at 38% 32%,rgba(184,69,95,.2),rgba(107,21,48,.5));
+      border:1px solid rgba(184,69,95,.3);
+      cursor:pointer;display:flex;align-items:center;justify-content:center;
+      font-size:1.85rem;
+      animation:hb 2.3s ease-in-out infinite;
+      box-shadow:0 0 40px rgba(184,69,95,.18),0 0 100px rgba(107,21,48,.1);
+      transition:transform .25s;
+    }
+    .hbtn::before,.hbtn::after{content:'';position:absolute;inset:0;border-radius:50%;border:1px solid rgba(184,69,95,.2);animation:ring 3s ease-out infinite;}
+    .hbtn::after{animation-delay:1.1s;}
+    .hbtn:hover{transform:scale(1.09);}
+    .hbtn:active{transform:scale(.91);}
+    @keyframes hb{0%,100%{transform:scale(1);}14%{transform:scale(1.15);}28%{transform:scale(1);}42%{transform:scale(1.07);}}
+    @keyframes ring{0%{transform:scale(1);opacity:.4;}100%{transform:scale(2.6);opacity:0;}}
+    .ov-hint{margin-top:14px;font-size:.58rem;letter-spacing:6px;text-transform:uppercase;color:var(--muted);animation:pulse 2.6s ease-in-out infinite;}
+    @keyframes pulse{0%,100%{opacity:.3;}50%{opacity:.75;}}
+
+    /* MAIN */
+    #main{position:relative;z-index:20;width:100%;height:100%;opacity:0;transition:opacity 1s ease;}
+    #main.on{opacity:1;}
+
+    /* SWIPER */
+    .swiper{width:100%;height:100%;}
+    .swiper-slide{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:20px 20px 68px;position:relative;background:transparent;
+    }
+    .s1-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 68% 62% at 50% 78%,rgba(80,8,28,.6) 0%,transparent 68%);pointer-events:none;}
+    .s2-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 68% 58% at 32% 42%,rgba(5,14,28,.6) 0%,transparent 68%);pointer-events:none;}
+    .s3-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 68% 58% at 68% 32%,rgba(16,6,32,.6) 0%,transparent 68%);pointer-events:none;}
+    .s4-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 68% 58% at 38% 68%,rgba(6,20,12,.6) 0%,transparent 68%);pointer-events:none;}
+    .s5-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 68% 58% at 62% 55%,rgba(24,6,6,.6) 0%,transparent 68%);pointer-events:none;}
+
+    /* CARD */
+    .card{
+      position:relative;z-index:1;
+      background:rgba(6,3,10,.55);
+      backdrop-filter:blur(36px) saturate(.85);
+      -webkit-backdrop-filter:blur(36px) saturate(.85);
+      border:1px solid var(--gbdr);
+      border-radius:2px;
+      padding:clamp(24px,5vw,46px) clamp(22px,5vw,44px);
+      max-width:min(600px,92vw);width:100%;
+      box-shadow:0 36px 110px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.035);
+    }
+    .card::before{
+      content:'';position:absolute;top:0;left:10%;right:10%;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(201,169,110,.45),transparent);
+    }
+
+    /* SLIDE 1 */
+    .s1h{font-size:clamp(3rem,12vw,5.5rem);display:block;text-align:center;margin-bottom:16px;transition:all .8s ease;}
+    .s1-name{
+      font-family:'Cormorant Garamond',serif;
+      font-size:clamp(2.5rem,9vw,4.6rem);
+      font-style:italic;font-weight:300;
+      color:var(--cream);display:block;text-align:center;margin-bottom:12px;letter-spacing:.02em;
+    }
+    .s1-div{width:36px;height:1px;margin:0 auto 13px;background:linear-gradient(90deg,transparent,rgba(201,169,110,.45),transparent);}
+    .s1-title{font-family:'Cormorant Garamond',serif;font-size:clamp(.95rem,2.8vw,1.35rem);font-weight:300;font-style:italic;text-align:center;color:var(--muted2);letter-spacing:.04em;}
+    .swipe-hint{position:absolute;bottom:46px;z-index:2;font-size:.57rem;letter-spacing:6px;text-transform:uppercase;color:var(--muted);animation:pulse 2.9s ease-in-out infinite;}
+
+    /* SLIDE 2 */
+    .ltr-eye{font-size:.58rem;letter-spacing:6px;text-transform:uppercase;color:rgba(201,169,110,.4);margin-bottom:5px;text-align:center;}
+    .ltr-hd{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(1.25rem,3.8vw,1.65rem);color:var(--cream);text-align:center;margin-bottom:16px;}
+    .ltr-scroll{max-height:50vh;overflow-y:auto;padding-right:5px;}
+    .ltr-scroll::-webkit-scrollbar{width:2px;}
+    .ltr-scroll::-webkit-scrollbar-thumb{background:rgba(201,169,110,.28);border-radius:1px;}
+    #type-out{font-size:clamp(.84rem,2.2vw,.96rem);line-height:2.1;color:rgba(220,205,182,.76);white-space:pre-wrap;font-weight:300;}
+    .tcur{display:inline-block;width:1.5px;height:1.05em;background:var(--champ);vertical-align:middle;opacity:.65;animation:blink 1.1s step-end infinite;}
+    @keyframes blink{0%,100%{opacity:.65;}50%{opacity:0;}}
+
+    /* SLIDE 3 */
+    .sec-eye{font-size:.57rem;letter-spacing:6px;text-transform:uppercase;color:rgba(201,169,110,.38);text-align:center;margin-bottom:4px;}
+    .sec-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.25rem,4vw,1.85rem);font-style:italic;font-weight:300;color:var(--cream);text-align:center;margin-bottom:18px;}
+    .g6{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .gi{background:rgba(255,255,255,.028);border:1px solid rgba(180,130,100,.09);border-radius:2px;padding:12px 9px;text-align:center;opacity:0;transform:translateY(14px) scale(.96);transition:opacity .5s ease,transform .5s ease;}
+    .gi.on{opacity:1;transform:translateY(0) scale(1);}
+    .gem{font-size:1.45rem;display:block;margin-bottom:4px;opacity:.82;}
+    .gtxt{font-size:clamp(.7rem,1.85vw,.8rem);color:rgba(205,185,155,.68);line-height:1.5;}
+
+    /* SLIDE 4 */
+    .pl{list-style:none;margin-top:14px;}
+    .pi{display:flex;gap:13px;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(180,130,100,.07);opacity:0;transform:translateX(-14px);transition:opacity .42s ease,transform .42s ease;}
+    .pi:last-child{border-bottom:none;}
+    .pi.on{opacity:1;transform:translateX(0);}
+    .ptick{width:19px;height:19px;flex-shrink:0;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--wine));display:flex;align-items:center;justify-content:center;font-size:.58rem;margin-top:3px;color:#fff;box-shadow:0 0 10px rgba(184,69,95,.22);}
+    .ptxt{font-size:clamp(.8rem,2.1vw,.91rem);line-height:1.75;color:rgba(205,185,155,.76);}
+
+    /* SLIDE 5 */
+    .fq{text-align:center;}
+    .fq-em{font-size:2.8rem;display:block;margin-bottom:13px;}
+    .fq-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(1.65rem,5.5vw,2.5rem);color:var(--cream);margin-bottom:9px;}
+    .fq-sub{font-size:clamp(.76rem,2vw,.88rem);color:rgba(205,185,155,.57);line-height:1.9;margin-bottom:26px;}
+    .fbx{display:flex;gap:13px;justify-content:center;flex-wrap:wrap;}
+    .by{padding:12px 34px;background:linear-gradient(135deg,var(--rose),var(--wine));border:none;border-radius:1px;color:#fff;font-family:'Hind Siliguri',sans-serif;font-size:clamp(.86rem,2.2vw,.95rem);font-weight:500;cursor:pointer;letter-spacing:.03em;box-shadow:0 8px 28px rgba(107,21,48,.4);transition:all .3s;}
+    .by:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(107,21,48,.52);}
+    .bn{padding:12px 34px;background:transparent;border:1px solid rgba(180,130,100,.2);border-radius:1px;color:rgba(205,185,155,.42);font-family:'Hind Siliguri',sans-serif;font-size:clamp(.86rem,2.2vw,.95rem);cursor:pointer;transition:all .32s;}
+    .bn:hover{border-color:rgba(180,130,100,.38);color:rgba(205,185,155,.68);}
+
+    .fgv{display:none;text-align:center;animation:popIn .7s cubic-bezier(.68,-.55,.27,1.55) forwards;}
+    @keyframes popIn{0%{transform:scale(0);opacity:0;}100%{transform:scale(1);opacity:1;}}
+    .fgv-em{font-size:3.2rem;display:block;margin-bottom:12px;}
+    .fgv-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(1.4rem,4.5vw,1.95rem);color:var(--cream);margin-bottom:9px;}
+    .fgv-note{font-size:clamp(.76rem,2vw,.87rem);color:rgba(205,185,155,.58);line-height:1.92;}
+    .fgv-note em{display:block;margin-top:9px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.1em;color:rgba(201,169,110,.65);}
+
+    /* NAV */
+    .nav{position:absolute;bottom:36px;display:flex;align-items:center;justify-content:center;gap:11px;width:100%;z-index:25;pointer-events:none;}
+    .nvb{width:36px;height:36px;border-radius:50%;background:rgba(6,3,10,.42);border:1px solid rgba(180,130,100,.13);color:rgba(205,185,155,.32);font-size:.82rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;pointer-events:all;}
+    .nvb:hover{background:rgba(107,21,48,.32);border-color:rgba(184,69,95,.28);color:var(--cream);}
+    .nvb:disabled{opacity:.1;cursor:default;pointer-events:none;}
+
+    .swiper-pagination{bottom:14px!important;}
+    .swiper-pagination-bullet{background:rgba(205,185,155,.16);opacity:1;width:5px;height:5px;transition:all .32s;}
+    .swiper-pagination-bullet-active{background:rgba(201,169,110,.6)!important;width:17px!important;border-radius:2.5px!important;}
+
+    .cf{position:fixed;top:-12px;pointer-events:none;z-index:500;border-radius:2px;animation:cfFall linear forwards;}
+    @keyframes cfFall{0%{transform:translateY(0) rotate(0);opacity:1;}100%{transform:translateY(108vh) rotate(720deg);opacity:0;}}
+
+    @media(max-width:480px){.g6{gap:7px;}.card{padding:17px 13px;}}
+  </style>
+</head>
+<body>
+
+<div id="photo-bg"></div>
+<div id="vignette"></div>
+<div id="grain"></div>
+<canvas id="cv"></canvas>
+
+<!-- OVERLAY -->
+<div class="ov" id="ov">
+  <span class="ov-eye">for you, always</span>
+  <span class="ov-name">প্রেয়সী</span>
+  <div class="ov-rule"><span></span><em>ক্ষমা চাই</em><span></span></div>
+  <button class="hbtn" id="openBtn">💔</button>
+  <span class="ov-hint">touch to open</span>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <div class="swiper mySwiper">
+    <div class="swiper-wrapper">
+
+      <div class="swiper-slide s1-bg">
+        <div class="card">
+          <span class="s1h" id="s1h">💔</span>
+          <span class="s1-name">প্রেয়সী</span>
+          <div class="s1-div"></div>
+          <div class="s1-title">আমি সত্যিই দুঃখিত।</div>
+        </div>
+        <span class="swipe-hint">swipe to read →</span>
+      </div>
+
+      <div class="swiper-slide s2-bg">
+        <div class="card">
+          <div class="ltr-eye">a letter for you</div>
+          <div class="ltr-hd">তোমার জন্য লেখা</div>
+          <div class="ltr-scroll" id="lsc"><div id="type-out"></div></div>
+        </div>
+      </div>
+
+      <div class="swiper-slide s3-bg">
+        <div class="card">
+          <div class="sec-eye">why you matter</div>
+          <div class="sec-title">তুমি কেন এত বিশেষ</div>
+          <div class="g6" id="g6">
+            <div class="gi"><span class="gem">🌷</span><span class="gtxt">তোমার হাসিতে আমার দিন সুন্দর হয়ে ওঠে</span></div>
+            <div class="gi"><span class="gem">💭</span><span class="gtxt">তুমি না থাকলে কাকে বলব মনের কথা?</span></div>
+            <div class="gi"><span class="gem">🌟</span><span class="gtxt">তুমি আমাকে better হতে inspire করো</span></div>
+            <div class="gi"><span class="gem">🫂</span><span class="gtxt">তোমার care টা সবচেয়ে genuine মনে হয়</span></div>
+            <div class="gi"><span class="gem">🌸</span><span class="gtxt">তোমার সাথে থাকলে মনে peace আসে</span></div>
+            <div class="gi"><span class="gem">❤️</span><span class="gtxt">তুমি ছাড়া কিছুই পূর্ণ মনে হয় না</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="swiper-slide s4-bg">
+        <div class="card">
+          <div class="sec-eye">my promises</div>
+          <div class="sec-title">আমার প্রতিজ্ঞা</div>
+          <ul class="pl" id="pl">
+            <li class="pi"><span class="ptick">✓</span><span class="ptxt">তোমার feelings কে আর কখনো ছোট করব না।</span></li>
+            <li class="pi"><span class="ptick">✓</span><span class="ptxt">তুমি কথা বলতে চাইলে সবসময় শুনব — কোনো judgment ছাড়া।</span></li>
+            <li class="pi"><span class="ptick">✓</span><span class="ptxt">তোমার dream-এ সবার আগে clap করব, সবসময়।</span></li>
+            <li class="pi"><span class="ptick">✓</span><span class="ptxt">এই bond টাকে কোনো ভুলের জন্য শেষ হতে দেব না।</span></li>
+            <li class="pi"><span class="ptick">✓</span><span class="ptxt">ভালো দিনে আর কঠিন দিনে — সবসময় পাশে থাকব।</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="swiper-slide s5-bg">
+        <div class="card" style="text-align:center;">
+          <div class="fq" id="fq">
+            <span class="fq-em">🙏</span>
+            <div class="fq-title">মাফ করবে?</div>
+            <div class="fq-sub">তোমার একটু হাসি পাওয়ার জন্য আমি<br>যেকোনো কিছু করতে রাজি আছি।</div>
+            <div class="fbx">
+              <button class="by" id="btnY">হ্যাঁ, মাফ করলাম ❤️</button>
+              <button class="bn" id="btnN">এখনো না 😤</button>
+            </div>
+          </div>
+          <div class="fgv" id="fgv">
+            <span class="fgv-em">🥹</span>
+            <div class="fgv-title">ধন্যবাদ, প্রেয়সী</div>
+            <div class="fgv-note">
+              তোমার এই ক্ষমাটা আমার কাছে সবচেয়ে বড় উপহার।
+              <em>I promise to do better. Always.</em>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="swiper-pagination"></div>
+  </div>
+  <div class="nav">
+    <button class="nvb" id="navP" disabled>←</button>
+    <button class="nvb" id="navN">→</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+const cv=document.getElementById('cv'),cx=cv.getContext('2d');
+let W,H;function sz(){W=cv.width=innerWidth;H=cv.height=innerHeight;}sz();window.addEventListener('resize',sz);
+const pts=Array.from({length:60},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.1+.3,vx:(Math.random()-.5)*.15,vy:(Math.random()-.5)*.15,a:Math.random()*.14+.03,col:Math.random()<.5?'#C9A96E':'#B8455F'}));
+(function tick(){cx.clearRect(0,0,W,H);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fillStyle=p.col;cx.globalAlpha=p.a;cx.fill();});cx.globalAlpha=1;requestAnimationFrame(tick);})();
+
+document.getElementById('openBtn').addEventListener('click',()=>{
+  const ov=document.getElementById('ov');ov.classList.add('out');
+  setTimeout(()=>{ov.style.display='none';document.getElementById('main').classList.add('on');},1600);
+  const h=document.getElementById('s1h');
+  setTimeout(()=>{h.textContent='💗';},2400);setTimeout(()=>{h.textContent='❤️';},4200);
+});
+
+const sw=new Swiper('.mySwiper',{allowTouchMove:true,speed:720,pagination:{el:'.swiper-pagination',clickable:false},keyboard:{enabled:true}});
+const navP=document.getElementById('navP'),navN=document.getElementById('navN');
+navN.addEventListener('click',()=>sw.slideNext());navP.addEventListener('click',()=>sw.slidePrev());
+sw.on('slideChange',()=>{const i=sw.activeIndex,l=sw.slides.length-1;navP.disabled=i===0;navN.disabled=i===l;if(i===1)startTyping();if(i===2)revealGrid();if(i===3)revealPromises();});
+
+const LETTER=`প্রেয়সী,
+
+সত্যিই বলছি — তোমাকে hurt করার কোনো ইচ্ছে আমার ছিল না।
+কিন্তু হয়ে গেছে। আর সেটার দায় আমি নিচ্ছি।
+
+তুমি চুপ থাকলে আমার বুকটা ভারী হয়ে যায়। জানি রাগ করেছ — করার অধিকার আছে তোমার। কিন্তু এই silence টা সত্যিই অনেক কষ্ট দেয়।
+
+তোমার সাথে কথা বলাটা আমার কাছে কতটা দরকারি — সেটা তুমি জানো। তোমার হাসিটুকু দেখলে মনে হয় সব ঠিক আছে।
+
+sorry বলছি শুধু এই কারণে নয় যে বলতে হবে — বলছি কারণ তুমি সত্যিই matter করো।
+
+Please, একটু ভুলটা ক্ষমা করো। আমাদের bond টা এই ভুলের জন্য শেষ হোক — এটা আমি চাই না।
+
+তোমার,
+✦ একজন ভুল মানুষ, যে তোমাকে ভীষণ miss করছে 💔`;
+
+let typed=false;
+function startTyping(){if(typed)return;typed=true;const el=document.getElementById('type-out'),sc=document.getElementById('lsc');el.innerHTML='';const cur=document.createElement('span');cur.className='tcur';el.appendChild(cur);let i=0;function go(){if(i<LETTER.length){el.insertBefore(document.createTextNode(LETTER[i]),cur);i++;sc.scrollTop=sc.scrollHeight;setTimeout(go,i<25?62:i<80?33:22);}}go();}
+
+let gd=false,pd=false;
+function revealGrid(){if(gd)return;gd=true;document.querySelectorAll('.gi').forEach((el,i)=>setTimeout(()=>el.classList.add('on'),i*100));}
+function revealPromises(){if(pd)return;pd=true;document.querySelectorAll('.pi').forEach((el,i)=>setTimeout(()=>el.classList.add('on'),i*165));}
+
+const noMsgs=['এখনো না 😤','please... 🥺','একটু ভাবো 🙏','ভুলে যাও? 💔','আমি wait করব 😔'];
+let nc=0;const isMob=/Mobi|Android/i.test(navigator.userAgent);
+document.getElementById('btnY').addEventListener('click',()=>{document.getElementById('fq').style.display='none';document.getElementById('fgv').style.display='block';launchConfetti();});
+const btnN=document.getElementById('btnN');
+btnN.addEventListener('click',()=>{nc=Math.min(nc+1,noMsgs.length-1);btnN.textContent=noMsgs[nc];const dx=(Math.random()-.5)*(isMob?60:210),dy=(Math.random()-.5)*(isMob?36:105);btnN.style.transition='transform .38s ease';btnN.style.transform=`translate(${dx}px,${dy}px)`;setTimeout(()=>{btnN.style.transition='transform .65s ease';btnN.style.transform='';},500);});
+btnN.addEventListener('mouseover',()=>{if(isMob)return;const dx=(Math.random()-.5)*190,dy=(Math.random()-.5)*100;btnN.style.transition='transform .26s ease';btnN.style.transform=`translate(${dx}px,${dy}px)`;});
+btnN.addEventListener('mouseout',()=>{if(isMob)return;setTimeout(()=>{btnN.style.transition='transform .52s ease';btnN.style.transform='';},260);});
+
+function launchConfetti(){const cols=['#B8455F','#C9A96E','#EDE0CC','#7B1D3C','#D4748A','#f2e6c8'];for(let i=0;i<110;i++){setTimeout(()=>{const el=document.createElement('div');el.className='cf';el.style.left=Math.random()*100+'vw';el.style.width=(Math.random()*8+4)+'px';el.style.height=(Math.random()*8+4)+'px';el.style.background=cols[Math.floor(Math.random()*cols.length)];el.style.borderRadius=Math.random()>.5?'50%':'2px';const dur=Math.random()*2+2.5;el.style.animationDuration=dur+'s';el.style.animationDelay=Math.random()*.32+'s';document.body.appendChild(el);setTimeout(()=>el.remove(),(dur+.5)*1000);},i*16);}}
+</script>
+</body>
+</html>
